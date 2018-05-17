@@ -1,0 +1,62 @@
+
+Sub ConvertDSSATFileToCSVFormat()
+
+'This is a VBA code. Open Excel, activate "Developer" option and copy this code to the Visual Basic Editor.
+'This sub creates .csv files from files in DSSAT format present in a given folder.
+'I wrote this sub because csv files are easy to read in R than DSSAT files.
+'DO THIS: Make sure Tools>>Reference>>Microsoft Scripting Runtime... is checked
+
+InFolderPath = "C:\Downloads\DSSATResults\Weather"     	'CHANGE PATH from where the DSSAT files are to be read
+OutFolderPath = "C:\Downloads\DSSATResults\Weather"    	'CHANGE PATH Where would you like to save the newly converted csv files
+
+'******************************************************************************
+'Reading and saving all file names except csv files from the directory you chose
+
+    Dim objFile As Scripting.File
+    Dim objFolder As Scripting.Folder
+    ReDim FileName(0) As String
+
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    Set objFolder = objFSO.GetFolder(InFolderPath)
+        
+    n = 0
+    For Each objFile In objFolder.Files
+        If objFile.Type <> ".csv" Then
+            ReDim Preserve FileName(n + 1)
+            FileName(n) = objFile.Name
+            n = n + 1
+        End If
+    Next objFile
+
+    
+'****************************************************************************
+'Converting the DSSAT files into comma separated files by replacing the spaces
+    
+    Dim fso As Scripting.FileSystemObject
+    Dim fsi As Scripting.FileSystemObject
+    Dim str As String
+    
+    For i = 0 To UBound(FileName)
+        FullInPath = InFolderPath & "\" & FileName(i)
+        FullOutPath = OutFolderPath & "\" & Replace(FileName(i), ".", "_") & ".csv"
+ 
+        Set fsi = New Scripting.FileSystemObject
+        Set rDSSAT = fsi.OpenTextFile(FullInPath, ForReading)
+
+        Set fso = CreateObject("Scripting.FileSystemObject")
+        Set wDSSAT = fso.CreateTextFile(FullOutPath, True)
+        
+            Do Until Line Like "*@*"
+                Line = rDSSAT.ReadLine()
+            Loop    'reading lines before varible names and actual values start
+
+          Do Until rDSSAT.AtEndOfStream
+            Line = rDSSAT.ReadLine()
+            str_write = Replace(Application.WorksheetFunction.Trim(Line), " ", ",")  'removing extra spaces and converting each line from space to comma separated
+            wDSSAT.WriteLine (str_write)
+        Loop
+    rDSSAT.Close
+    wDSSAT.Close
+  Next i
+
+End Sub
