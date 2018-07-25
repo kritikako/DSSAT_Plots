@@ -1,0 +1,64 @@
+Dim fso As Scripting.FileSystemObject
+Dim fsi As Scripting.FileSystemObject
+Dim w As Scripting.TextStream
+Dim r As Scripting.TextStream
+Dim str As String, ArrayOfLine() As String
+Dim Digit1to4() As String, Digit5() As String, Digit6() As String, Digit1to2() As String
+Dim InFileName(120) As String
+
+'This is hard-coded and takes 36 seasonal files with specific names as input with irrigation applied on certain dates.
+'After running this code, new seasonal files will be created with the only difference of irrigation amounts reduced or increased by the specified fraction.
+'Example: currently 70% or 0.7 irrigation ? e.g., if on a certain date irrigation was 20 mm, then new file will have 14 mm irrigation on that date.
+
+Sub CreatingDeficitIrrigationSNX()
+        
+    'Creating an array of SNX file names e.g. HF4E5056************* 
+	'This was specific to my file name format and number of files.
+    Digit3 = Split("4,8", ",")
+    Digit4 = Split("B,E,X,G,I,M,O,S,T", ",")
+    Digit5 = Split("5056.SNX,0694.SNX", ",")
+    n = 0
+    For i = 0 To 1
+        For j = 0 To 8
+            For k = 0 To 1
+                InFileName(n) = "HF" & Digit3(i) & Digit4(j) & Digit5(k)
+                n = n + 1
+            Next k
+        Next j
+    Next i
+		
+	'Again change the path where you have your original seasonal file: Irrigation 100, and new .snx files to be created in Irrigation 70 for example	
+    BasePath = "C:\Users\kritika.kothari\Downloads\Conferences\ASABE2018\SNX Cotton\"
+    
+    For f = 0 To n - 1
+        
+        FullInPath = BasePath & "Irrigation 100\SNX\" & InFileName(f)
+        FullOutPath = BasePath & "Irrigation 70\SNX\" & InFileName(f) '************CHANGE deficit irrigation folder 80%, 60%, etc.******************
+    
+        Set fsi = New Scripting.FileSystemObject
+        Set r = fsi.OpenTextFile(FullInPath, ForReading)
+    
+        Set fso = CreateObject("Scripting.FileSystemObject")
+        Set w = fso.CreateTextFile(FullOutPath, True)
+        
+        Do
+            Line = r.ReadLine()
+            str = Line
+            If str Like "*IR004*" Then
+                Irrg100 = Int(Right(str, 2))
+                IrrgDeficit = (Irrg100 * 0.7)                   '*******CHANGE deficit irrigation fraction of 100 here, e.g., 0.8, 0.6, 0.4******************
+                str_new = Left(str, 18) & Round(IrrgDeficit, 0)
+                w.WriteLine (str_new)
+            Else
+                w.WriteLine (str)
+            End If
+            
+        Loop Until r.AtEndOfStream
+        r.Close
+        w.Close
+    
+    Next f
+
+End Sub
+
+
