@@ -1,4 +1,4 @@
-# DSSAT_Plots
+# DSSAT_File Preparation_Results Extraction
 Howdy!
 
 This repository contains codes in different languages (VBA, R, MATLAB), reading DSSAT input/output files and creating plots.
