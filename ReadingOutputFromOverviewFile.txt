@@ -1,0 +1,248 @@
+Dim fso As Scripting.FileSystemObject
+Dim ov5B As Scripting.TextStream
+Dim str As String, ArrayOfLine() As String
+Dim IrrigatedYldBU(200, 20) As Double
+Dim IrrigatedYldHF(200, 20) As Double
+Dim IrrigatedYldLM(200, 20) As Double
+Dim InfileName(120) As String
+
+
+Sub EndVegBiomassExtraction()
+    Set fso = New Scripting.FileSystemObject
+    gcmBU = 0
+    gcmHF = 0
+    gcmLM = 0
+    
+    
+    BasePath = "C:\Users\kritika.kothari\Downloads\FutureClimateData\MACA_CMIP5\_Wheat MACA DSSAT\1_BaselineGenotype\Results\"
+    
+    'Creating an array of OSU file output names e.g. BU4B5056,  HF4E5056, 3rd digit is RCP scenario, 4rd digit is GCM*************
+    Digit1to2 = Split("BD,HD,LD", ",")
+    digit3 = Split("4,8", ",")
+    Digit6 = Split("B,E,X,G,I,M,O,S,T", ",")
+    n = 0
+    For i = 0 To 2
+        For j = 0 To 1
+            For k = 0 To 8
+                InfileName(n) = Digit1to2(i) & digit3(j) & Digit6(k) & "5056.OOV"
+                n = n + 1
+            Next k
+        Next j
+    Next i
+    'Reading only the irrigated yeilds from 3 locations, 9 GCMs, 2RCPs and 56 years 1950- 2005
+    For f = 0 To 53
+        On Error Resume Next
+        'InFullPath = "E:\__FutureSimulation_4October\constantCO2\Results_constantCO2\" & InfileName(f)
+        InFullPath = BasePath & InfileName(f)
+        
+        Set ov5B = fso.OpenTextFile(InFullPath, ForReading)
+         
+        If Left(InfileName(f), 2) = "BD" Then
+            Sheets("PotterEndVegBiomass").Select
+            iBU = 0
+            numb = 1
+            fixnumb = 1
+            Do
+                Line = ov5B.ReadLine()
+                str = Line
+                If str Like "*Emergence      *" Then
+                    If (numb = fixnumb) Then
+                        fixnumb = numb + 57
+                        For rd = 0 To 1
+                            Line = ov5B.ReadLine()
+                        Next rd
+                        str = Line
+                        IrrigatedYldBU(iBU, gcmBU) = LineToEndVegBiomass(str)
+                        iBU = iBU + 1
+                    End If
+                    numb = numb + 1
+                End If
+            Loop Until ov5B.AtEndOfStream
+        ov5B.Close
+        gcmBU = gcmBU + 1
+        Cells(1, gcmBU + 1) = Left(InfileName(f), 4)
+        
+        ElseIf Left(InfileName(f), 2) = "HD" Then
+            Sheets("HaleEndVegBiomass").Select
+            iHF = 0
+            numb = 1
+            fixnumb = 1
+            Do
+                Line = ov5B.ReadLine()
+                str = Line
+                If str Like "*Emergence      *" Then
+                        If numb = fixnumb Then
+                        fixnumb = numb + 57
+                            For rd = 0 To 1
+                                Line = ov5B.ReadLine()
+                            Next rd
+                            str = Line
+                            IrrigatedYldHF(iHF, gcmHF) = LineToEndVegBiomass(str)
+                            iHF = iHF + 1
+                        End If
+                    numb = numb + 1
+                End If
+            Loop Until ov5B.AtEndOfStream
+        ov5B.Close
+        gcmHF = gcmHF + 1
+        Cells(1, gcmHF + 1) = Left(InfileName(f), 4)
+        
+        ElseIf Left(InfileName(f), 2) = "LD" Then
+            Sheets("DawsonEndVegBiomass").Select
+            iLM = 0
+            numb = 1
+            fixnumb = 1
+            Do
+                Line = ov5B.ReadLine()
+                str = Line
+                If str Like "*Emergence      *" Then
+                    If numb = fixnumb Then
+                    fixnumb = numb + 57
+                        For rd = 0 To 1
+                            Line = ov5B.ReadLine()
+                        Next rd
+                        str = Line
+                    IrrigatedYldLM(iLM, gcmLM) = LineToEndVegBiomass(str)
+                    iLM = iLM + 1
+                    End If
+                    numb = numb + 1
+                End If
+            Loop Until ov5B.AtEndOfStream
+        ov5B.Close
+        gcmLM = gcmLM + 1
+        Cells(1, gcmLM + 1) = Left(InfileName(f), 4)
+        End If
+    Next f
+    
+'Reading results from future MACA data from 2006 to 2099***************************************************************************
+    gcmBU = 0
+    gcmHF = 0
+    gcmLM = 0
+    
+    'Creating an array of OSU file output names e.g. BU4B5056,  HF4E5056, 3rd digit is RCP scenario, 4rd digit is GCM*************
+    Digit1to2 = Split("BD,HD,LD", ",")
+    digit3 = Split("4,8", ",")
+    Digit6 = Split("B,E,X,G,I,M,O,S,T", ",")
+    n = 0
+    For i = 0 To 2
+        For j = 0 To 1
+            For k = 0 To 8
+                InfileName(n) = Digit1to2(i) & digit3(j) & Digit6(k) & "0694.OOV"
+                n = n + 1
+            Next k
+        Next j
+    Next i
+    'Reading only the irrigated yeilds from 3 locations, 9 GCMs, 2RCPs and 56 years 1950- 2005
+    For f = 0 To 53
+        On Error Resume Next
+        'InFullPath = "E:\__FutureSimulation_4October\constantCO2\Results_constantCO2\" & InfileName(f)
+        InFullPath = BasePath & InfileName(f)
+        
+        Set ov5B = fso.OpenTextFile(InFullPath, ForReading)
+        If Left(InfileName(f), 2) = "BD" Then
+            Sheets("PotterEndVegBiomass").Select
+            iBU = 56
+            numb = 1
+            fixnumb = 1
+            Do
+                Line = ov5B.ReadLine()
+                str = Line
+                If str Like "*Emergence      *" Then
+                   If numb = fixnumb Then
+                   fixnumb = numb + 95
+                        For rd = 0 To 1
+                            Line = ov5B.ReadLine()
+                        Next rd
+                        str = Line
+                    IrrigatedYldBU(iBU, gcmBU) = LineToEndVegBiomass(str)
+                    iBU = iBU + 1
+                    End If
+                    numb = numb + 1
+                End If
+            Loop Until ov5B.AtEndOfStream
+        ov5B.Close
+        gcmBU = gcmBU + 1
+
+        
+        ElseIf Left(InfileName(f), 2) = "HD" Then
+            Sheets("HaleEndVegBiomass").Select
+            iHF = 56
+            numb = 1
+            fixnumb = 1
+            Do
+                Line = ov5B.ReadLine()
+                str = Line
+                If str Like "*Emergence      *" Then
+                   If numb = fixnumb Then
+                   fixnumb = numb + 95
+                        For rd = 0 To 1
+                            Line = ov5B.ReadLine()
+                        Next rd
+                        str = Line
+                    IrrigatedYldHF(iHF, gcmHF) = LineToEndVegBiomass(str)
+                    iHF = iHF + 1
+                    End If
+                    numb = numb + 1
+                End If
+            Loop Until ov5B.AtEndOfStream
+        ov5B.Close
+        gcmHF = gcmHF + 1
+        
+        ElseIf Left(InfileName(f), 2) = "LD" Then
+            Sheets("DawsonEndVegBiomass").Select
+            iLM = 56
+            numb = 1
+            fixnumb = 1
+            Do
+                Line = ov5B.ReadLine()
+                str = Line
+                If str Like "*Emergence      *" Then
+                   If numb = fixnumb Then
+                   fixnumb = numb + 95
+                        For rd = 0 To 1
+                            Line = ov5B.ReadLine()
+                        Next rd
+                        str = Line
+                    IrrigatedYldLM(iLM, gcmLM) = LineToEndVegBiomass(str)
+                    iLM = iLM + 1
+                    End If
+                    numb = numb + 1
+                End If
+            Loop Until ov5B.AtEndOfStream
+        ov5B.Close
+        gcmLM = gcmLM + 1
+        End If
+    Next f
+
+   
+
+'***************************************************Reading results above, printing below this line*******
+
+
+'Printing the irrigated yields into excel for Bushland, Halfway, Lamesa in separate sheets
+    Sheets("PotterEndVegBiomass").Select
+    For j = 0 To 17
+        For i = 0 To iBU - 1
+            Cells(i + 2, j + 2) = IrrigatedYldBU(i, j)
+        Next i
+    Next j
+    Sheets("HaleEndVegBiomass").Select
+    For j = 0 To 17
+        For i = 0 To iHF - 1
+            Cells(i + 2, j + 2) = IrrigatedYldHF(i, j)
+        Next i
+    Next j
+    Sheets("DawsonEndVegBiomass").Select
+    For j = 0 To 17
+        For i = 0 To iLM - 1
+            Cells(i + 2, j + 2) = IrrigatedYldLM(i, j)
+        Next i
+    Next j
+    
+End Sub
+
+Function LineToEndVegBiomass(str As String)
+    LineArr = Left(str, 40)
+    LinetoLAI = Right(LineArr, 6)
+    LineToEndVegBiomass = Int(LinetoLAI)
+End Function
