@@ -1,12 +1,12 @@
 # DSSAT_File Preparation_Results Extraction
 Howdy!
 
-This repository contains codes in different languages (VBA, R, MATLAB), reading DSSAT input/output files and creating plots.
+This repository contains codes in different languages (VBA, R, MATLAB) for writing/reading DSSAT input/output files.
 
-I have excel VBA and matlab code for running DSSAT through command line that I intend to upload after soft-coding them.
+Most of the codes here are VBA codes and specific to my project. You may not be able to use them directly.
 
-Soon, I will be uploading R/ R markdown codes to read and plot DSSAt ouput.
+I would be happy to help you with reading/writing/running multiple DSSAT files programmatically.
 
-Last updated 5/16/2018
+Last updated 7/25/2018
 
--K
+-KK
